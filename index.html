@@ -56,7 +56,15 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+    document.addEventListener('keydown', (event) => {
+        // Se você apertar as teclas 'Alt' + 'L' ao mesmo tempo
+        if (event.altKey && event.key === 'a') {
+            const senha = prompt("Acesso Restrito. Digite a senha:");
+            if (senha === "suasenhaqui") {
+                window.location.href = "admin.html";
+            }
+        }
+    });
     const firebaseConfig = {
         apiKey: "AIzaSyB3IehrenMKz8uJSgea3EaiIhlIDEAtrQw",
         authDomain: "blog-low-wast.firebaseapp.com",
