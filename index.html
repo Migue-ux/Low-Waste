@@ -51,7 +51,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Blog Low Waste - Menos lixo, <span id="admin-trigger" style="cursor: point;">mais</span> vida.</p>
+        <p>&copy; 2025 Blog Low Waste - Menos lixo, mais vida.</p>
     </footer>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -66,14 +66,7 @@
         appId: "1:85524783938:web:c5904c60900c95dc909edb",
         measurementId: "G-BT4F6VCEFM"
     };
-    // Se você clicar 5 vezes na palavra "mais", ele te leva para a página admin
-    let Cliques = 0;
-    document.getElementById('admin-trigger').addEventListener('click', () => {
-        Cliques++;
-        if (Cliques === 5) {
-            window.location.href = 'admin.html';
-        }
-    });
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
