@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lendo Post - Low Waste</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="nav-bar">
+        <div class="nav-text">Low Waste</div>
+        <hr>
+        <nav class="nav-li">
+            <a href="index.html">Voltar para Home</a>
+        </nav>
+        <hr>
+    </header>
+
+    <main class="container">
+        <article class="post" id="area-conteudo">
+            <p>Carregando post...</p>
+        </article>
+    </main>
+
+    <footer style="text-align: center; padding: 20px;">
+        <p>&copy; 2025 Blog Low Waste</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3IehrenMKz8uJSgea3EaiIhlIDEAtrQw",
+            authDomain: "blog-low-wast.firebaseapp.com",
+            projectId: "blog-low-wast",
+            storageBucket: "blog-low-wast.firebasestorage.app",
+            messagingSenderId: "85524783938",
+            appId: "1:85524783938:web:c5904c60900c95dc909edb",
+            measurementId: "G-BT4F6VCEFM"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function lerPostUnico() {
+            // 1. Pega o ID que está na URL (lá no navegador)
+            const params = new URLSearchParams(window.location.search);
+            const idPost = params.get('id');
+
+            if (!idPost) {
+                window.location.href = "index.html"; // Se não tiver ID, volta pra home
+                return;
+            }
+
+            // 2. Busca esse ID específico no banco
+            const docRef = doc(db, "posts", idPost);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const post = docSnap.data();
+
+                // Formata a data (opcional)
+                let dataFormatada = "Data desconhecida";
+                if (post.data) {
+                    const dataObj = post.data.toDate();
+                    dataFormatada = dataObj.toLocaleDateString('pt-BR');
+                }
+
+                // 3. Preenche o HTML
+                const htmlConteudo = `
+                    <span class="category">${post.categoria}</span>
+                    <h1>${post.titulo}</h1>
+                    <p class="meta">Publicado em ${dataFormatada}</p>
+                    
+                    <div class="post-img-placeholder">
+                        <img src="${post.imagem || 'https://via.placeholder.com/800'}" alt="Imagem do Post">
+                    </div>
+
+                    <div class="texto-post">
+                        <p>${post.conteudo.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+
+                document.getElementById('area-conteudo').innerHTML = htmlConteudo;
+            } else {
+                document.getElementById('area-conteudo').innerHTML = "<h1>Post não encontrado :(</h1>";
+            }
+        }
+
+        lerPostUnico();
+    </script>
+</body>
+
+</html>

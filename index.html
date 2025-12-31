@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Low Waste Blog - Vida Sustentável</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="nav-bar">
+        <div class="nav-text">Low Waste</div>
+        <hr>
+        <nav class="nav-li">
+            <a href="index.html">Home</a>
+            <a href="about.html">Sobre</a>
+            <a href="dicas.html">Dicas</a>
+            <a href="contact.html">Contato</a>
+        </nav>
+        <hr>
+    </header>
+
+
+
+        
+    <main class="container" id="lista-posts">
+        <article class="post">
+            <span class="category">Iniciantes</span>
+            <h1>Como montar um Kit Sustentável para o dia a dia</h1>
+            <p class="meta">Publicado em 31 de Dezembro, 2025</p>
+
+            <div class="post-img-placeholder">
+                <img src="https://m.media-amazon.com/images/I/71LyX9yVt0L._AC_UF894,1000_QL80_.jpg" alt="Kit Sustentável">
+                <span>Imagem do Kit Sustentável</span>
+            </div>
+
+            <p>Mudar hábitos pode parecer um desafio gigante, mas a jornada <strong>Low Waste</strong> (baixo resíduo)
+                começa com pequenos itens que evitam o descarte desnecessário de plástico.</p>
+
+            <h3>Itens essenciais para sua bolsa:</h3>
+            <ul>
+                <li><strong>Garrafa de Inox:</strong> Para nunca mais precisar comprar água em garrafa PET.</li>
+                <li><strong>Ecobag:</strong> Uma sacola de pano leve que salva suas compras inesperadas.</li>
+                <li><strong>Talheres de Bambu:</strong> Ideais para marmitas ou lanches na rua.</li>
+            </ul>
+
+            <p>O objetivo não é ser perfeito, mas sim fazer escolhas melhores sempre que possível!</p>
+        </article>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Blog Low Waste - Menos lixo, mais vida.</p>
+    </footer>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyB3IehrenMKz8uJSgea3EaiIhlIDEAtrQw",
+        authDomain: "blog-low-wast.firebaseapp.com",
+        projectId: "blog-low-wast",
+        storageBucket: "blog-low-wast.firebasestorage.app",
+        messagingSenderId: "85524783938",
+        appId: "1:85524783938:web:c5904c60900c95dc909edb",
+        measurementId: "G-BT4F6VCEFM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Função para carregar posts
+    async function carregarPosts() {
+        const areaPosts = document.getElementById('lista-posts');
+        areaPosts.innerHTML = "<h2>Carregando novidades...</h2>";
+
+        // Busca os posts ordenados por data (mais recente primeiro)
+        const q = query(collection(db, "posts"), orderBy("data", "desc"));
+        const querySnapshot = await getDocs(q);
+
+        areaPosts.innerHTML = '<h2 class="section-title">Últimas do Blog</h2>';
+
+        if (querySnapshot.empty) {
+            areaPosts.innerHTML += "<p>Nenhum post encontrado.</p>";
+            return;
+        }
+
+        querySnapshot.forEach((doc) => {
+            const post = doc.data();
+            const id = doc.id; // ID único do post
+
+            // Cria o HTML do card dinamicamente
+            const cardHTML = `
+                <div class="post-card">
+                    <img src="${post.imagem || 'https://via.placeholder.com/400'}" alt="${post.titulo}">
+                    <div class="post-card-content">
+                        <span class="category">${post.categoria}</span>
+                        <h3>${post.titulo}</h3>
+                        <p>${post.conteudo.substring(0, 100)}...</p> 
+                        <a href="ver-post.html?id=${id}" class="btn-read">Ler Completo</a>
+                    </div>
+                </div>
+            `;
+
+            areaPosts.innerHTML += cardHTML;
+        });
+    }
+
+    carregarPosts();
+</script>
+</body>
+
+</html>

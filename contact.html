@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contato - Low Waste</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<!--  colocar fotos nessas páginas ( <div class="post-img-placeholder"> ) -->
+<body>
+    <header class="nav-bar">
+        <div class="nav-text">Low Waste</div>
+        <hr>
+        <nav class="nav-li">
+            <a href="index.html">Home</a>
+            <a href="about.html">Sobre</a>
+            <a href="dicas.html">Dicas</a>
+            <a href="contact.html">Contato</a>
+        </nav>
+        <hr>
+    </header>
+
+    <main class="container">
+        <div class="post">
+            <h2 class="section-title">Fale Conosco</h2>
+            <p class="center-text">Tem alguma dúvida, sugestão ou quer fazer uma parceria? Mande uma mensagem!
+            </p>
+
+            <form action="https://formspree.io/f/mkogngny" method="POST">
+            
+                <label>Seu Nome</label>
+                <input type="text" name="name" placeholder="Como podemos te chamar?" required>
+            
+                <label>Seu E-mail</label>
+                <input type="email" name="_replyto" placeholder="seuemail@exemplo.com" required>
+            
+                <label>Mensagem</label>
+                <textarea name="message" rows="6" placeholder="Escreva sua mensagem aqui..." required></textarea>
+            
+                <input type="hidden" name="_subject" value="Nova mensagem do Blog Low Waste!">
+            
+                <input type="text" name="_gotcha" style="display:none">
+            
+                <button type="submit">Enviar Mensagem</button>
+                
+            </form>
+        </div>
+    </main>
+
+    
+
+    <footer>
+        <p>&copy; 2025 Blog Low Waste</p>
+    </footer>
+</body>
+
+</html>
