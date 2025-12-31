@@ -71,15 +71,23 @@
 
     <script type="module">
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-         const auth = getAuth();
-
-            // Verifica se o usuário está logado antes de mostrar a página
-            onAuthStateChanged(auth, (user) => {
-                if (!user) {
-                    // Se não estiver logado, redireciona para uma página de erro ou home
-                    window.location.href = "index.html";
-                }
-            });
+      const actionCodeSettings = {
+            // URL you want to redirect back to. The domain (www.example.com) for this
+            // URL must be in the authorized domains list in the Firebase Console.
+            url: 'https://www.example.com/finishSignUp?cartId=1234',
+            // This must be true.
+            handleCodeInApp: true,
+            iOS: {
+                bundleId: 'com.example.ios'
+            },
+            android: {
+                packageName: 'com.example.android',
+                installApp: true,
+                minimumVersion: '12'
+            },
+            // The domain must be configured in Firebase Hosting and owned by the project.
+            linkDomain: 'custom-domain.com'
+        };
         // Importando as ferramentas do Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
