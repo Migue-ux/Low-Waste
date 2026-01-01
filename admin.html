@@ -4,87 +4,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Admin Dinâmico - Low Waste</title>
+    <title>Admin Master - Low Waste</title>
     <style>
+        :root {
+            --primary: #2d5a27;
+            --secondary: #8da08b;
+            --bg: #f0f2f0;
+            --white: #ffffff;
+        }
+
         body {
-            font-family: sans-serif;
-            background: #f4f4f4;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: #333;
             padding: 20px;
         }
 
         .container {
-            max-width: 700px;
+            max-width: 900px;
             margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
 
         h2,
         h3 {
+            color: var(--primary);
             text-align: center;
-            color: #2d5a27;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--primary);
         }
 
         input,
         textarea {
             width: 100%;
             padding: 12px;
-            margin: 5px 0;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
             box-sizing: border-box;
+            font-size: 1rem;
         }
 
-        /* Estilo dos Blocos */
+        /* Blocos Dinâmicos */
         .bloco {
             background: #f9f9f9;
-            padding: 15px;
-            border-left: 5px solid #2d5a27;
+            border-left: 6px solid var(--secondary);
+            padding: 20px;
             margin-bottom: 15px;
+            border-radius: 8px;
             position: relative;
+            animation: fadeIn 0.3s;
         }
 
-        .btn-remover {
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+        }
+
+        .btn-remove {
+            position: absolute;
+            top: 10px;
+            right: 10px;
             background: #ff4d4d;
             color: white;
             border: none;
             padding: 5px 10px;
             cursor: pointer;
-            float: right;
-            border-radius: 3px;
+            border-radius: 5px;
         }
 
-        .controles {
+        .toolbar {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
             justify-content: center;
+            margin: 20px 0;
         }
 
-        .btn-add {
-            background: #8da08b;
+        .btn-tool {
+            background: var(--secondary);
             color: white;
             border: none;
-            padding: 10px;
+            padding: 10px 20px;
+            border-radius: 50px;
             cursor: pointer;
-            border-radius: 5px;
             font-weight: bold;
+            transition: 0.3s;
         }
 
-        .btn-publicar {
-            background: #2d5a27;
+        .btn-tool:hover {
+            background: var(--primary);
+        }
+
+        .btn-main {
+            background: var(--primary);
             color: white;
             border: none;
             width: 100%;
-            padding: 15px;
-            font-size: 1.1rem;
+            padding: 20px;
+            font-size: 1.2rem;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 10px;
             font-weight: bold;
             margin-top: 20px;
+        }
+
+        .btn-cancel {
+            background: #888;
+            margin-top: 10px;
+        }
+
+        /* Tabela de Gestão */
+        .post-manager {
+            margin-top: 50px;
+            border-top: 2px solid #eee;
+            pt: 30px;
+        }
+
+        .post-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+        }
+
+        .post-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-del {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -92,112 +178,163 @@
 <body>
 
     <div class="container">
-        <h2>🌱 Novo Post Estruturado</h2>
-        <input type="password" id="senhaAdmin" placeholder="Senha de Acesso">
-        <hr>
-        <input type="text" id="titulo" placeholder="Título Principal do Post">
-        <input type="text" id="categoria" placeholder="Categoria (ex: Dicas, Horta)">
-        <input type="text" id="capa" placeholder="URL da Imagem de Capa">
+        <h2 id="form-title">🌱 Criar Novo Post</h2>
 
-        <h3>Conteúdo do Post</h3>
-        <div class="controles">
-            <button class="btn-add" onclick="adicionarBloco('texto')">+ Texto</button>
-            <button class="btn-add" onclick="adicionarBloco('subtitulo')">+ Subtítulo</button>
-            <button class="btn-add" onclick="adicionarBloco('imagem')">+ Imagem</button>
+        <div class="input-group">
+            <input type="password" id="adminPass" placeholder="Senha de Acesso">
         </div>
 
-        <div id="area-blocos">
+        <div class="input-group">
+            <label>Título do Post</label>
+            <input type="text" id="postTitle" placeholder="Ex: Guia de Compostagem Caseira">
         </div>
 
-        <button type="button" id="btnPublicar" class="btn-publicar">PUBLICAR POST COMPLETO</button>
+        <div class="input-group">
+            <label>Categoria</label>
+            <input type="text" id="postCat" placeholder="Ex: Cozinha, Jardim, Dicas">
+        </div>
+
+        <div class="input-group">
+            <label>URL da Imagem de Capa</label>
+            <input type="text" id="postThumb" placeholder="https://link-da-imagem.jpg">
+        </div>
+
+        <h3>Conteúdo por Blocos</h3>
+        <div id="blocks-container"></div>
+
+        <div class="toolbar">
+            <button class="btn-tool" onclick="addBlock('texto')">+ Texto</button>
+            <button class="btn-tool" onclick="addBlock('subtitulo')">+ Subtítulo</button>
+            <button class="btn-tool" onclick="addBlock('imagem')">+ Imagem</button>
+        </div>
+
+        <button id="btnSave" class="btn-main">PUBLICAR POST</button>
+        <button id="btnCancelEdit" class="btn-main btn-cancel" style="display:none;">CANCELAR EDIÇÃO</button>
+
+        <div class="post-manager">
+            <h3>Gerenciar Publicações</h3>
+            <div id="manager-list">Carregando posts...</div>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
-             apiKey: "AIzaSyB3IehrenMKz8uJSgea3EaiIhlIDEAtrQw",
+            apiKey: "AIzaSyB3IehrenMKz8uJSgea3EaiIhlIDEAtrQw",
             authDomain: "blog-low-wast.firebaseapp.com",
             projectId: "blog-low-wast",
             storageBucket: "blog-low-wast.firebasestorage.app",
             messagingSenderId: "85524783938",
-            appId: "1:85524783938:web:c5904c60900c95dc909edb",
-            measurementId: "G-BT4F6VCEFM"
+            appId: "1:85524783938:web:c5904c60900c95dc909edb"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const areaBlocos = document.getElementById('area-blocos');
+        let editId = null; // Guarda o ID se estivermos editando
 
-        // Função global para adicionar blocos
-        window.adicionarBloco = function (tipo) {
+        // --- LÓGICA DE BLOCOS ---
+        window.addBlock = function (tipo, valor = "") {
+            const container = document.getElementById('blocks-container');
             const div = document.createElement('div');
             div.className = 'bloco';
             div.dataset.tipo = tipo;
 
-            let inputHTML = '';
-            if (tipo === 'texto') {
-                inputHTML = `<button class="btn-remover" onclick="this.parentElement.remove()">X</button>
-                             <small>Parágrafo de Texto</small>
-                             <textarea class="valor-bloco" rows="4" placeholder="Escreva seu parágrafo..."></textarea>`;
-            } else if (tipo === 'subtitulo') {
-                inputHTML = `<button class="btn-remover" onclick="this.parentElement.remove()">X</button>
-                             <small>Subtítulo (H3)</small>
-                             <input type="text" class="valor-bloco" placeholder="Digite o subtítulo...">`;
-            } else if (tipo === 'imagem') {
-                inputHTML = `<button class="btn-remover" onclick="this.parentElement.remove()">X</button>
-                             <small>URL da Imagem</small>
-                             <input type="text" class="valor-bloco" placeholder="Link da imagem (https://...)">`;
-            }
+            let content = `<button class="btn-remove" onclick="this.parentElement.remove()">remover</button>`;
+            if (tipo === 'texto') content += `<small>TEXTO</small><textarea class="block-val" rows="4">${valor}</textarea>`;
+            else if (tipo === 'subtitulo') content += `<small>SUBTÍTULO</small><input type="text" class="block-val" value="${valor}">`;
+            else if (tipo === 'imagem') content += `<small>IMAGEM (URL)</small><input type="text" class="block-val" value="${valor}">`;
 
-            div.innerHTML = inputHTML;
-            areaBlocos.appendChild(div);
+            div.innerHTML = content;
+            container.appendChild(div);
         }
 
-        document.getElementById('btnPublicar').addEventListener('click', async () => {
-            const senha = document.getElementById('senhaAdmin').value;
-            if (senha !== "0106ma@") {
-                alert("Senha incorreta!");
-                return;
-            }
+        // --- SALVAR / ATUALIZAR ---
+        document.getElementById('btnSave').addEventListener('click', async () => {
+            const pass = document.getElementById('adminPass').value;
+            if (pass !== "0106ma@") return alert("Senha errada!");
 
-            const titulo = document.getElementById('titulo').value;
-            const categoria = document.getElementById('categoria').value;
-            const capa = document.getElementById('capa').value;
+            const titulo = document.getElementById('postTitle').value;
+            const categoria = document.getElementById('postCat').value;
+            const imagem = document.getElementById('postThumb').value;
 
-            // Coleta todos os blocos na ordem que aparecem
-            const blocosElementos = document.querySelectorAll('.bloco');
-            const conteudoEstruturado = [];
+            const blocosEls = document.querySelectorAll('.bloco');
+            const conteudo = Array.from(blocosEls).map(el => ({
+                tipo: el.dataset.tipo,
+                valor: el.querySelector('.block-val').value
+            }));
 
-            blocosElementos.forEach(el => {
-                conteudoEstruturado.push({
-                    tipo: el.dataset.tipo,
-                    valor: el.querySelector('.valor-bloco').value
-                });
-            });
-
-            if (!titulo || conteudoEstruturado.length === 0) {
-                alert("Preencha o título e adicione pelo menos um bloco de conteúdo!");
-                return;
-            }
+            if (!titulo || conteudo.length === 0) return alert("Preencha o título e o conteúdo!");
 
             try {
-                await addDoc(collection(db, "posts"), {
-                    titulo: titulo,
-                    categoria: categoria,
-                    imagem: capa, // Imagem principal para a vitrine
-                    conteudo: conteudoEstruturado, // Agora é uma lista de objetos
-                    data: serverTimestamp()
-                });
-                alert("Post completo publicado!");
-                location.reload(); // Limpa tudo
-            } catch (e) {
-                console.error(e);
-                alert("Erro ao publicar.");
-            }
+                const dados = { titulo, categoria, imagem, conteudo, data: serverTimestamp() };
+
+                if (editId) {
+                    await updateDoc(doc(db, "posts", editId), dados);
+                    alert("Post atualizado!");
+                } else {
+                    await addDoc(collection(db, "posts"), dados);
+                    alert("Post criado!");
+                }
+                location.reload();
+            } catch (e) { alert("Erro ao salvar."); }
         });
+
+        // --- CARREGAR LISTA PARA GESTÃO ---
+        async function loadManager() {
+            const list = document.getElementById('manager-list');
+            const q = query(collection(db, "posts"), orderBy("data", "desc"));
+            const snap = await getDocs(q);
+            list.innerHTML = "";
+
+            snap.forEach(d => {
+                const p = d.data();
+                const item = document.createElement('div');
+                item.className = 'post-item';
+                item.innerHTML = `
+                <div class="post-info"><strong>${p.titulo}</strong><small>${p.categoria}</small></div>
+                <div class="actions">
+                    <button class="btn-edit" onclick="startEdit('${d.id}')">Editar</button>
+                    <button class="btn-del" onclick="deletePost('${d.id}')">Excluir</button>
+                </div>
+            `;
+                list.appendChild(item);
+            });
+        }
+
+        // --- EXCLUIR ---
+        window.deletePost = async (id) => {
+            if (confirm("Apagar para sempre?")) {
+                await deleteDoc(doc(db, "posts", id));
+                loadManager();
+            }
+        }
+
+        // --- EDITAR (CARREGAR DADOS NO FORM) ---
+        window.startEdit = async (id) => {
+            const docSnap = await getDoc(doc(db, "posts", id));
+            if (!docSnap.exists()) return;
+            const p = docSnap.data();
+
+            editId = id;
+            document.getElementById('form-title').innerText = "✏️ Editando Post";
+            document.getElementById('postTitle').value = p.titulo;
+            document.getElementById('postCat').value = p.categoria;
+            document.getElementById('postThumb').value = p.imagem;
+            document.getElementById('btnSave').innerText = "SALVAR ALTERAÇÕES";
+            document.getElementById('btnCancelEdit').style.display = "block";
+
+            document.getElementById('blocks-container').innerHTML = "";
+            p.conteudo.forEach(b => addBlock(b.tipo, b.valor));
+
+            window.scrollTo(0, 0);
+        }
+
+        document.getElementById('btnCancelEdit').onclick = () => location.reload();
+
+        loadManager();
     </script>
 </body>
 
