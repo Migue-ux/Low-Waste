@@ -349,3 +349,58 @@ footer {
         width: 100%;
     }
 }
+
+
+/* =========================================
+   9. AJUSTES PARA POSTS DINÂMICOS (BLOCOS)
+   ========================================= */
+
+/* Garante que as imagens dentro do post não estourem o limite e fiquem bonitas */
+.texto-post img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 30px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Espaçamento extra para os subtítulos no meio do texto */
+.texto-post h3 {
+    font-family: 'Lora', serif;
+    color: var(--cor-primaria);
+    font-size: 1.8rem;
+    margin-top: 40px;
+    margin-bottom: 15px;
+}
+
+/* Melhora a leitura dos parágrafos dentro da div de conteúdo */
+.texto-post p {
+    margin-bottom: 20px;
+    line-height: 1.8;
+}
+
+/* Ajuste específico para os cards na Home (correção de altura) */
+.post-card-img {
+    width: 40%;
+    min-height: 250px;
+    background-color: var(--cor-borda);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.post-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* No celular, o card de imagem volta a ocupar 100% da largura */
+@media (max-width: 768px) {
+    .post-card-img {
+        width: 100%;
+        height: 200px;
+        min-height: auto;
+    }
+}

@@ -4,12 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Low Waste Blog - Vida Sustentável</title>
+    <title>Low Waste Blog - Home</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-
     <header class="nav-bar">
         <div class="nav-text">Low Waste</div>
         <hr>
@@ -48,73 +47,60 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Atalho para Admin (2 cliques)
-        let Cliques = 0;
+        let cliques = 0;
         document.getElementById('admin-trigger').addEventListener('click', () => {
-            Cliques++;
-            if (Cliques === 2) window.location.href = 'admin.html';
+            cliques++;
+            if (cliques === 2) window.location.href = 'admin.html';
         });
 
         async function carregarPosts() {
             const areaPosts = document.getElementById('lista-posts');
-
             try {
                 const q = query(collection(db, "posts"), orderBy("data", "desc"));
                 const querySnapshot = await getDocs(q);
-
                 areaPosts.innerHTML = '<h2 class="section-title">Últimas do Blog</h2>';
 
-                if (querySnapshot.empty) {
-                    areaPosts.innerHTML += "<p>Nenhum post encontrado.</p>";
-                    return;
-                }
-
-               querySnapshot.forEach((doc) => {
+                querySnapshot.forEach((doc) => {
                     const post = doc.data();
                     const id = doc.id;
 
-                    // Tenta pegar a imagem, se não conseguir, deixa vazio
+                    // Tratamento da Imagem
                     let urlImagem = post.imagem || "";
+                    if (urlImagem && !urlImagem.startsWith('http')) urlImagem = "";
 
-                    // Se o link não começar com http, ele vai dar erro, então limpamos
-                    if (urlImagem && !urlImagem.startsWith('http')) {
-                        urlImagem = "";
-                    }
-
+                    // Tratamento do Texto
                     let resumo = "";
                     if (Array.isArray(post.conteudo)) {
-                        const blocoTexto = post.conteudo.find(b => b.tipo === 'texto');
-                        resumo = blocoTexto ? blocoTexto.valor : "";
+                        const bTexto = post.conteudo.find(b => b.tipo === 'texto');
+                        resumo = bTexto ? bTexto.valor : "";
                     } else {
                         resumo = post.conteudo || "";
                     }
 
-                    const cardHTML = `
-        <div class="post-card">
-            <div class="post-card-img" style="background-color: #e1e6e1; height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                ${urlImagem
-                            ? `<img src="${urlImagem}" alt="${post.titulo}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color:#8da08b\'>🌱 Low Waste</span>'">`
-                            : `<span style="color:#8da08b">🌱 Low Waste</span>`
-                        }
-            </div>
-            <div class="post-card-content">
-                <span class="category">${post.categoria || 'Geral'}</span>
-                <h3>${post.titulo}</h3>
-                <p>${resumo.substring(0, 100)}...</p> 
-                <a href="ver-post.html?id=${id}" class="btn-read">Ler Completo</a>
-            </div>
-        </div>
-    `;
+                    // Criando o card sem estilos complexos dentro da string para evitar o erro de Syntax
+                    const card = document.createElement('div');
+                    card.className = 'post-card';
 
-                    areaPosts.innerHTML += cardHTML;
+                    card.innerHTML = `
+                        <div class="post-card-img" style="background:#e1e6e1; height:200px; overflow:hidden;">
+                            ${urlImagem
+                            ? `<img src="${urlImagem}" style="width:100%; height:100%; object-fit:cover;">`
+                            : `<div style="text-align:center; padding-top:80px;">🌱</div>`}
+                        </div>
+                        <div class="post-card-content">
+                            <span class="category">${post.categoria || 'Geral'}</span>
+                            <h3>${post.titulo}</h3>
+                            <p>${resumo.substring(0, 100)}...</p>
+                            <a href="ver-post.html?id=${id}" class="btn-read">Ler Completo</a>
+                        </div>
+                    `;
+                    areaPosts.appendChild(card);
                 });
-
-            } catch (error) {
-                console.error("Erro:", error);
-                areaPosts.innerHTML = "<p>Erro ao carregar o feed.</p>";
+            } catch (e) {
+                console.error("Erro ao carregar posts:", e);
+                areaPosts.innerHTML = "<h2>Erro ao carregar o conteúdo.</h2>";
             }
         }
-
         carregarPosts();
     </script>
 </body>
