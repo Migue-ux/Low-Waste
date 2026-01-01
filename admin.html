@@ -4,222 +4,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Master - Low Waste</title>
+    <title>Admin Ultra - Low Waste</title>
     <style>
         :root {
             --primary: #2d5a27;
-            --secondary: #8da08b;
-            --bg: #f0f2f0;
-            --white: #ffffff;
+            --bg: #f4f7f4;
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: system-ui;
             background: var(--bg);
-            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             padding: 20px;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: var(--white);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
         }
 
-        h2,
-        h3 {
-            color: var(--primary);
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: var(--primary);
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
 
         input,
-        textarea {
+        textarea,
+        select {
             width: 100%;
             padding: 12px;
+            margin: 8px 0;
             border: 1px solid #ddd;
             border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1rem;
         }
 
-        /* Blocos Dinâmicos */
         .bloco {
             background: #f9f9f9;
-            border-left: 6px solid var(--secondary);
-            padding: 20px;
-            margin-bottom: 15px;
+            padding: 15px;
+            margin: 10px 0;
             border-radius: 8px;
+            border-left: 4px solid var(--primary);
             position: relative;
-            animation: fadeIn 0.3s;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
+        /* Preview Style */
+        #preview-area {
+            border: 2px dashed #ccc;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
         }
 
-        .btn-remove {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #ff4d4d;
+        .preview-content img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .btn {
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .toolbar {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        .btn-tool {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 50px;
+            padding: 12px 20px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
-        }
-
-        .btn-tool:hover {
-            background: var(--primary);
-        }
-
-        .btn-main {
-            background: var(--primary);
-            color: white;
-            border: none;
             width: 100%;
-            padding: 20px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            border-radius: 10px;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-
-        .btn-cancel {
-            background: #888;
             margin-top: 10px;
         }
 
-        /* Tabela de Gestão */
-        .post-manager {
-            margin-top: 50px;
-            border-top: 2px solid #eee;
-            pt: 30px;
-        }
-
-        .post-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #eee;
-        }
-
-        .post-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-edit {
-            background: #4a90e2;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
+        .btn-add {
+            background: #8da08b;
+            margin-bottom: 5px;
         }
 
         .btn-del {
-            background: #e74c3c;
+            background: #ff4d4d;
             color: white;
             border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
+            padding: 5px;
             cursor: pointer;
+            border-radius: 4px;
+            float: right;
+        }
+
+        .stats {
+            font-size: 0.8rem;
+            color: #666;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="container">
-        <h2 id="form-title">🌱 Criar Novo Post</h2>
+    <div class="main-layout">
+        <div class="card">
+            <h2>Editor de Post</h2>
+            <input type="password" id="adminPass" placeholder="Senha">
+            <input type="text" id="postTitle" placeholder="Título do Post" oninput="updatePreview()">
 
-        <div class="input-group">
-            <input type="password" id="adminPass" placeholder="Senha de Acesso">
+            <label>Categoria:</label>
+            <select id="postCat" title="Selecione uma categoria" onchange="updatePreview()">
+                <option value="Dicas">🌿 Dicas Gerais</option>
+                <option value="Cozinha">🍎 Cozinha Sustentável</option>
+                <option value="Horta">🌻 Horta & Jardim</option>
+                <option value="Banheiro">🧴 Banheiro Eco</option>
+            </select>
+
+            <label>Status de Publicação:</label>
+            <select id="postStatus" title="Selecione o status de publicação">
+                <option value="publicado">Publicar Agora 🚀</option>
+                <option value="rascunho">Salvar como Rascunho 📝</option>
+            </select>
+
+            <input type="text" id="postThumb" placeholder="URL da Foto de Capa" oninput="updatePreview()">
+
+            <div id="blocks-container"></div>
+
+            <button type="button" class="btn btn-add" onclick="addBlock('texto')">+ Parágrafo</button>
+            <button type="button" class="btn btn-add" onclick="addBlock('subtitulo')">+ Subtítulo</button>
+            <button type="button" class="btn btn-add" onclick="addBlock('imagem')">+ Imagem</button>
+
+            <button type="button" id="btnSave" class="btn">SALVAR POST</button>
+
+            <hr>
+            <h3>Gerenciar Posts</h3>
+            <div id="manager-list"></div>
         </div>
 
-        <div class="input-group">
-            <label>Título do Post</label>
-            <input type="text" id="postTitle" placeholder="Ex: Guia de Compostagem Caseira">
-        </div>
-
-        <div class="input-group">
-            <label>Categoria</label>
-            <input type="text" id="postCat" placeholder="Ex: Cozinha, Jardim, Dicas">
-        </div>
-
-        <div class="input-group">
-            <label>URL da Imagem de Capa</label>
-            <input type="text" id="postThumb" placeholder="https://link-da-imagem.jpg">
-        </div>
-
-        <h3>Conteúdo por Blocos</h3>
-        <div id="blocks-container"></div>
-
-        <div class="toolbar">
-            <button class="btn-tool" onclick="addBlock('texto')">+ Texto</button>
-            <button class="btn-tool" onclick="addBlock('subtitulo')">+ Subtítulo</button>
-            <button class="btn-tool" onclick="addBlock('imagem')">+ Imagem</button>
-        </div>
-
-        <button id="btnSave" class="btn-main">PUBLICAR POST</button>
-        <button id="btnCancelEdit" class="btn-main btn-cancel" style="display:none;">CANCELAR EDIÇÃO</button>
-
-        <div class="post-manager">
-            <h3>Gerenciar Publicações</h3>
-            <div id="manager-list">Carregando posts...</div>
+        <div class="card" id="preview-area">
+            <h3>Visualização em Tempo Real</h3>
+            <div id="real-time-preview" class="preview-content">
+                <h1 id="pre-title">Título aqui...</h1>
+                <div id="pre-thumb"></div>
+                <div id="pre-body"></div>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB3IehrenMKz8uJSgea3EaiIhlIDEAtrQw",
@@ -233,32 +164,39 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let editId = null; // Guarda o ID se estivermos editando
+        // --- PREVIEW EM TEMPO REAL ---
+        window.updatePreview = () => {
+            document.getElementById('pre-title').innerText = document.getElementById('postTitle').value || "Título aqui...";
+            const thumbUrl = document.getElementById('postThumb').value;
+            document.getElementById('pre-thumb').innerHTML = thumbUrl ? `<img src="${thumbUrl}">` : "";
 
-        // --- LÓGICA DE BLOCOS ---
-        window.addBlock = function (tipo, valor = "") {
-            const container = document.getElementById('blocks-container');
+            const blocos = document.querySelectorAll('.bloco');
+            let html = "";
+            blocos.forEach(b => {
+                const val = b.querySelector('.block-val').value;
+                if (b.dataset.tipo === 'texto') html += `<p>${val}</p>`;
+                else if (b.dataset.tipo === 'subtitulo') html += `<h3>${val}</h3>`;
+                else if (b.dataset.tipo === 'imagem') html += `<img src="${val}">`;
+            });
+            document.getElementById('pre-body').innerHTML = html;
+        }
+
+        window.addBlock = (tipo, valor = "") => {
             const div = document.createElement('div');
             div.className = 'bloco';
             div.dataset.tipo = tipo;
-
-            let content = `<button class="btn-remove" onclick="this.parentElement.remove()">remover</button>`;
-            if (tipo === 'texto') content += `<small>TEXTO</small><textarea class="block-val" rows="4">${valor}</textarea>`;
-            else if (tipo === 'subtitulo') content += `<small>SUBTÍTULO</small><input type="text" class="block-val" value="${valor}">`;
-            else if (tipo === 'imagem') content += `<small>IMAGEM (URL)</small><input type="text" class="block-val" value="${valor}">`;
-
-            div.innerHTML = content;
-            container.appendChild(div);
+            div.innerHTML = `
+            <button class="btn-del" onclick="this.parentElement.remove(); updatePreview()">X</button>
+            <small>${tipo.toUpperCase()}</small>
+            ${tipo === 'texto' ? `<textarea class="block-val" oninput="updatePreview()">${valor}</textarea>` : `<input type="text" class="block-val" value="${valor}" oninput="updatePreview()">`}
+        `;
+            document.getElementById('blocks-container').appendChild(div);
+            updatePreview();
         }
 
-        // --- SALVAR / ATUALIZAR ---
-        document.getElementById('btnSave').addEventListener('click', async () => {
-            const pass = document.getElementById('adminPass').value;
-            if (pass !== "0106ma@") return alert("Senha errada!");
-
-            const titulo = document.getElementById('postTitle').value;
-            const categoria = document.getElementById('postCat').value;
-            const imagem = document.getElementById('postThumb').value;
+        // --- SALVAR ---
+        document.getElementById('btnSave').onclick = async () => {
+            if (document.getElementById('adminPass').value !== "0106ma@") return alert("Senha!");
 
             const blocosEls = document.querySelectorAll('.bloco');
             const conteudo = Array.from(blocosEls).map(el => ({
@@ -266,74 +204,37 @@
                 valor: el.querySelector('.block-val').value
             }));
 
-            if (!titulo || conteudo.length === 0) return alert("Preencha o título e o conteúdo!");
+            const postData = {
+                titulo: document.getElementById('postTitle').value,
+                categoria: document.getElementById('postCat').value,
+                imagem: document.getElementById('postThumb').value,
+                status: document.getElementById('postStatus').value,
+                conteudo: conteudo,
+                views: 0, // Inicia contador de visitas
+                data: serverTimestamp()
+            };
 
-            try {
-                const dados = { titulo, categoria, imagem, conteudo, data: serverTimestamp() };
+            await addDoc(collection(db, "posts"), postData);
+            alert("Sucesso!");
+            location.reload();
+        }
 
-                if (editId) {
-                    await updateDoc(doc(db, "posts", editId), dados);
-                    alert("Post atualizado!");
-                } else {
-                    await addDoc(collection(db, "posts"), dados);
-                    alert("Post criado!");
-                }
-                location.reload();
-            } catch (e) { alert("Erro ao salvar."); }
-        });
-
-        // --- CARREGAR LISTA PARA GESTÃO ---
+        // --- LISTAR COM VIEWS ---
         async function loadManager() {
-            const list = document.getElementById('manager-list');
             const q = query(collection(db, "posts"), orderBy("data", "desc"));
             const snap = await getDocs(q);
+            const list = document.getElementById('manager-list');
             list.innerHTML = "";
-
             snap.forEach(d => {
                 const p = d.data();
-                const item = document.createElement('div');
-                item.className = 'post-item';
-                item.innerHTML = `
-                <div class="post-info"><strong>${p.titulo}</strong><small>${p.categoria}</small></div>
-                <div class="actions">
-                    <button class="btn-edit" onclick="startEdit('${d.id}')">Editar</button>
-                    <button class="btn-del" onclick="deletePost('${d.id}')">Excluir</button>
-                </div>
-            `;
-                list.appendChild(item);
+                list.innerHTML += `
+                <div style="background:#fff; padding:10px; border-bottom:1px solid #eee;">
+                    <b>${p.titulo}</b> <br>
+                    <span class="stats">👁️ ${p.views || 0} visitas | 🚩 ${p.status}</span>
+                    <button onclick="deleteDoc(doc(db, 'posts', '${d.id}')).then(()=>location.reload())" style="float:right">🗑️</button>
+                </div>`;
             });
         }
-
-        // --- EXCLUIR ---
-        window.deletePost = async (id) => {
-            if (confirm("Apagar para sempre?")) {
-                await deleteDoc(doc(db, "posts", id));
-                loadManager();
-            }
-        }
-
-        // --- EDITAR (CARREGAR DADOS NO FORM) ---
-        window.startEdit = async (id) => {
-            const docSnap = await getDoc(doc(db, "posts", id));
-            if (!docSnap.exists()) return;
-            const p = docSnap.data();
-
-            editId = id;
-            document.getElementById('form-title').innerText = "✏️ Editando Post";
-            document.getElementById('postTitle').value = p.titulo;
-            document.getElementById('postCat').value = p.categoria;
-            document.getElementById('postThumb').value = p.imagem;
-            document.getElementById('btnSave').innerText = "SALVAR ALTERAÇÕES";
-            document.getElementById('btnCancelEdit').style.display = "block";
-
-            document.getElementById('blocks-container').innerHTML = "";
-            p.conteudo.forEach(b => addBlock(b.tipo, b.valor));
-
-            window.scrollTo(0, 0);
-        }
-
-        document.getElementById('btnCancelEdit').onclick = () => location.reload();
-
         loadManager();
     </script>
 </body>

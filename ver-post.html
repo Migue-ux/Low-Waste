@@ -32,7 +32,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+         import { updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         const firebaseConfig = {
             apiKey: "AIzaSyB3IehrenMKz8uJSgea3EaiIhlIDEAtrQw",
             authDomain: "blog-low-wast.firebaseapp.com",
@@ -63,7 +63,13 @@
             // Dentro da função lerPostUnico() do seu ver-post.html
             if (docSnap.exists()) {
                 const post = docSnap.data();
+                
 
+                // ... dentro do if (docSnap.exists()) ...
+                const postRef = doc(db, "posts", idPost);
+                await updateDoc(postRef, {
+                    views: increment(1) // SOMA +1 CADA VEZ QUE ALGUÉM ABRE
+                });
                 // Gerar o conteúdo baseado nos blocos
                 let blocosHTML = '';
 
