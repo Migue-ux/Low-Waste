@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Ultra - Low Waste</title>
+    <title>Admin Ultra - Web Search IA</title>
     <style>
         :root {
             --primary: #2d5a27;
@@ -28,12 +28,30 @@
             max-width: 1200px;
         }
 
+        /* Mobile */
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .card {
             background: white;
             padding: 25px;
             border-radius: 15px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
+        .card h2, .card h3 {
+            color: var(--primary);
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+
+
 
         input,
         textarea,
@@ -43,6 +61,7 @@
             margin: 8px 0;
             border: 1px solid #ddd;
             border-radius: 8px;
+            box-sizing: border-box;
         }
 
         .bloco {
@@ -54,17 +73,20 @@
             position: relative;
         }
 
-        /* Preview Style */
         #preview-area {
             border: 2px dashed #ccc;
             height: fit-content;
             position: sticky;
             top: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .preview-content img {
             max-width: 100%;
             border-radius: 8px;
+            margin: 10px 0;
+            transition: 0.5s;
         }
 
         .btn {
@@ -77,6 +99,7 @@
             font-weight: bold;
             width: 100%;
             margin-top: 10px;
+            transition: 0.3s;
         }
 
         .btn-add {
@@ -88,10 +111,48 @@
             background: #ff4d4d;
             color: white;
             border: none;
-            padding: 5px;
+            padding: 5px 10px;
             cursor: pointer;
             border-radius: 4px;
             float: right;
+        }
+
+        /* Loading da IA */
+        #ia-status {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
+            min-height: 20px;
+        }
+
+        .loading-pulse {
+            animation: pulse 1.5s infinite;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.5;
+            }
+        }
+
+        .post-item {
+            background: #fff;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .stats {
@@ -105,43 +166,49 @@
 
     <div class="main-layout">
         <div class="card">
-            <h2>Editor de Post</h2>
-            <input type="password" id="adminPass" placeholder="Senha">
-            <input type="text" id="postTitle" placeholder="Título do Post" oninput="updatePreview()">
+            <h2 id="form-title">Editor Conectado à Web - Low Waste </h2>
 
-            <label>Categoria:</label>
-            <select id="postCat" title="Selecione uma categoria" onchange="updatePreview()">
+            <input type="password" id="adminPass" placeholder="Senha de Acesso">
+
+            <label>Sobre o que é o post?</label>
+            <input type="text" id="postTitle" placeholder="Digite o título..." oninput="iniciarBuscaInteligente()">
+
+            <div id="ia-status"></div>
+
+            <label>Categoria Sugerida:</label>
+            <select title="categorias" id="postCat" onchange="updatePreview()">
                 <option value="Dicas">🌿 Dicas Gerais</option>
                 <option value="Cozinha">🍎 Cozinha Sustentável</option>
                 <option value="Horta">🌻 Horta & Jardim</option>
                 <option value="Banheiro">🧴 Banheiro Eco</option>
             </select>
 
-            <label>Status de Publicação:</label>
-            <select id="postStatus" title="Selecione o status de publicação">
-                <option value="publicado">Publicar Agora 🚀</option>
-                <option value="rascunho">Salvar como Rascunho 📝</option>
-            </select>
-
-            <input type="text" id="postThumb" placeholder="URL da Foto de Capa" oninput="updatePreview()">
+            <label>Capa (Automática):</label>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="postThumb" placeholder="URL da imagem..." oninput="updatePreview()">
+                <button class="btn" style="width: 50px; margin:8px 0;" onclick="iniciarBuscaInteligente(true)"
+                    title="Nova Imagem">IR</button>
+            </div>
 
             <div id="blocks-container"></div>
 
-            <button type="button" class="btn btn-add" onclick="addBlock('texto')">+ Parágrafo</button>
-            <button type="button" class="btn btn-add" onclick="addBlock('subtitulo')">+ Subtítulo</button>
-            <button type="button" class="btn btn-add" onclick="addBlock('imagem')">+ Imagem</button>
+            <button class="btn btn-add" onclick="addBlock('texto')">+ Parágrafo</button>
+            <button class="btn btn-add" onclick="addBlock('subtitulo')">+ Subtítulo</button>
+            <button class="btn btn-add" onclick="addBlock('imagem')">+ Imagem Interna</button>
 
-            <button type="button" id="btnSave" class="btn">SALVAR POST</button>
+            <button id="btnSave" class="btn">SALVAR POST</button>
+            <button id="btnCancel" class="btn" style="background:#888; display:none;"
+                onclick="location.reload()">CANCELAR EDIÇÃO</button>
 
             <hr>
             <h3>Gerenciar Posts</h3>
-            <div id="manager-list"></div>
+            <div id="manager-list">Carregando...</div>
         </div>
 
         <div class="card" id="preview-area">
-            <h3>Visualização em Tempo Real</h3>
+            <h3>Preview</h3>
             <div id="real-time-preview" class="preview-content">
-                <h1 id="pre-title">Título aqui...</h1>
+                <h1 id="pre-title" style="color:var(--primary)">Título aqui...</h1>
                 <div id="pre-thumb"></div>
                 <div id="pre-body"></div>
             </div>
@@ -150,7 +217,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, getDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB3IehrenMKz8uJSgea3EaiIhlIDEAtrQw",
@@ -163,28 +230,81 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        let editId = null;
 
-        // --- PREVIEW EM TEMPO REAL ---
-        window.updatePreview = () => {
-            document.getElementById('pre-title').innerText = document.getElementById('postTitle').value || "Título aqui...";
-            const thumbUrl = document.getElementById('postThumb').value;
-            document.getElementById('pre-thumb').innerHTML = thumbUrl ? `<img src="${thumbUrl}">` : "";
+        // ============================================
+        // 🧠 CÉREBRO DA IA (WEB SEARCH)
+        // ============================================
 
-            const blocos = document.querySelectorAll('.bloco');
-            let html = "";
-            blocos.forEach(b => {
-                const val = b.querySelector('.block-val').value;
-                if (b.dataset.tipo === 'texto') html += `<p>${val}</p>`;
-                else if (b.dataset.tipo === 'subtitulo') html += `<h3>${val}</h3>`;
-                else if (b.dataset.tipo === 'imagem') html += `<img src="${val}">`;
-            });
-            document.getElementById('pre-body').innerHTML = html;
-        }
+        // ⚠️ IMPORTANTE: Crie uma conta no https://unsplash.com/developers e pegue sua Access Key gratuita.
+        // É grátis e permite 50 buscas por hora.
+        const UNSPLASH_ACCESS_KEY = "Woz_GuCYmXfHNHWnzruw2zBTw2S7cBEjUvZFAuQxTQU"; // <--- COLAR SUA CHAVE AQUI
+
+        let tempoDigitacao; // Para não buscar a cada letra, e sim quando parar de digitar
+
+        window.iniciarBuscaInteligente = (forcar = false) => {
+            updatePreview();
+            const titulo = document.getElementById('postTitle').value;
+            const status = document.getElementById('ia-status');
+
+            if (!titulo && !forcar) return;
+
+            // Limpa o timer anterior (debounce)
+            clearTimeout(tempoDigitacao);
+
+            // Espera 1 segundo após o usuário parar de digitar
+            tempoDigitacao = setTimeout(async () => {
+                status.innerHTML = `<span class="loading-pulse">🔎 Pesquisando na web imagens para: "${titulo}"...</span>`;
+
+                // Lógica: Se o título for muito curto (ex: "."), pesquisa "Natureza" ou "Abstrato"
+                let termoBusca = titulo.length < 3 ? "nature sustainability abstract" : titulo;
+
+                // Adiciona "minimalist" ou "nature" para tentar manter o estilo do blog
+                termoBusca += " minimalist nature";
+
+                try {
+                    // Faz a chamada real para a API do Unsplash
+                    const response = await fetch(`https://api.unsplash.com/search/photos?page=1&query=${termoBusca}&per_page=1&orientation=landscape&client_id=${UNSPLASH_ACCESS_KEY}`);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.results.length > 0) {
+                            const imgUrl = data.results[0].urls.regular;
+                            document.getElementById('postThumb').value = imgUrl;
+                            status.innerHTML = `✅ Encontrei uma imagem perfeita!`;
+                            updatePreview();
+
+                            // Sugerir categoria baseada no texto (básico)
+                            if (titulo.match(/cozinha|receita|comida/i)) document.getElementById('postCat').value = "Cozinha";
+                            else if (titulo.match(/horta|planta|jardim/i)) document.getElementById('postCat').value = "Horta";
+                            else if (titulo.match(/banho|pele|sabonete/i)) document.getElementById('postCat').value = "Banheiro";
+
+                        } else {
+                            status.innerHTML = `❌ Nada encontrado. Tentando termo genérico...`;
+                            // Fallback se não achar nada
+                            document.getElementById('postThumb').value = "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800";
+                            updatePreview();
+                        }
+                    } else {
+                        // Se der erro (ex: sem chave de API), usa placeholder
+                        console.error("Erro API Unsplash (Provavelmente falta a Key)");
+                        status.innerHTML = `⚠️ Sem chave de API. Usando imagem aleatória.`;
+                        document.getElementById('postThumb').value = "https://source.unsplash.com/random/800x600/?" + termoBusca;
+                        updatePreview();
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            }, 1000); // 1000ms = 1 segundo de espera
+        };
+
+        // ============================================
+        // SISTEMA DO ADMIN (CRUD)
+        // ============================================
 
         window.addBlock = (tipo, valor = "") => {
             const div = document.createElement('div');
-            div.className = 'bloco';
-            div.dataset.tipo = tipo;
+            div.className = 'bloco'; div.dataset.tipo = tipo;
             div.innerHTML = `
             <button class="btn-del" onclick="this.parentElement.remove(); updatePreview()">X</button>
             <small>${tipo.toUpperCase()}</small>
@@ -194,14 +314,26 @@
             updatePreview();
         }
 
-        // --- SALVAR ---
-        document.getElementById('btnSave').onclick = async () => {
-            if (document.getElementById('adminPass').value !== "0106ma@") return alert("Senha!");
+        window.updatePreview = () => {
+            document.getElementById('pre-title').innerText = document.getElementById('postTitle').value || "Título aqui...";
+            const thumb = document.getElementById('postThumb').value;
+            document.getElementById('pre-thumb').innerHTML = thumb ? `<img src="${thumb}">` : "";
 
-            const blocosEls = document.querySelectorAll('.bloco');
-            const conteudo = Array.from(blocosEls).map(el => ({
-                tipo: el.dataset.tipo,
-                valor: el.querySelector('.block-val').value
+            let html = "";
+            document.querySelectorAll('.bloco').forEach(b => {
+                const val = b.querySelector('.block-val').value;
+                if (b.dataset.tipo === 'texto') html += `<p>${val}</p>`;
+                else if (b.dataset.tipo === 'subtitulo') html += `<h3>${val}</h3>`;
+                else if (b.dataset.tipo === 'imagem') html += `<img src="${val}">`;
+            });
+            document.getElementById('pre-body').innerHTML = html;
+        }
+
+        document.getElementById('btnSave').onclick = async () => {
+            if (document.getElementById('adminPass').value !== "0106ma@") return alert("Senha Incorreta!");
+
+            const conteudo = Array.from(document.querySelectorAll('.bloco')).map(el => ({
+                tipo: el.dataset.tipo, valor: el.querySelector('.block-val').value
             }));
 
             const postData = {
@@ -210,16 +342,36 @@
                 imagem: document.getElementById('postThumb').value,
                 status: document.getElementById('postStatus').value,
                 conteudo: conteudo,
-                views: 0, // Inicia contador de visitas
                 data: serverTimestamp()
             };
 
-            await addDoc(collection(db, "posts"), postData);
-            alert("Sucesso!");
-            location.reload();
+            try {
+                if (editId) {
+                    await updateDoc(doc(db, "posts", editId), postData);
+                    alert("Atualizado!");
+                } else {
+                    postData.views = 0;
+                    await addDoc(collection(db, "posts"), postData);
+                    alert("Criado!");
+                }
+                location.reload();
+            } catch (e) { alert("Erro: " + e.message); }
         }
 
-        // --- LISTAR COM VIEWS ---
+        window.startEdit = async (id) => {
+            const snap = await getDoc(doc(db, "posts", id));
+            const p = snap.data(); editId = id;
+            document.getElementById('postTitle').value = p.titulo;
+            document.getElementById('postThumb').value = p.imagem;
+            document.getElementById('postCat').value = p.categoria;
+            document.getElementById('postStatus').value = p.status;
+            document.getElementById('btnSave').innerText = "ATUALIZAR";
+            document.getElementById('btnCancel').style.display = "block";
+            document.getElementById('blocks-container').innerHTML = "";
+            if (p.conteudo) p.conteudo.forEach(b => addBlock(b.tipo, b.valor));
+            window.scrollTo(0, 0);
+        }
+
         async function loadManager() {
             const q = query(collection(db, "posts"), orderBy("data", "desc"));
             const snap = await getDocs(q);
@@ -228,10 +380,10 @@
             snap.forEach(d => {
                 const p = d.data();
                 list.innerHTML += `
-                <div style="background:#fff; padding:10px; border-bottom:1px solid #eee;">
-                    <b>${p.titulo}</b> <br>
-                    <span class="stats">👁️ ${p.views || 0} visitas | 🚩 ${p.status}</span>
-                    <button onclick="deleteDoc(doc(db, 'posts', '${d.id}')).then(()=>location.reload())" style="float:right">🗑️</button>
+                <div class="post-item">
+                    <div><b>${p.titulo}</b><br><span class="stats">👁️ ${p.views || 0} | 🚩 ${p.status}</span></div>
+                    <div><button onclick="startEdit('${d.id}')">✏️</button>
+                    <button onclick="deleteDoc(doc(db,'posts','${d.id}')).then(()=>location.reload())">🗑️</button></div>
                 </div>`;
             });
         }
