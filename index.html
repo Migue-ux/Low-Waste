@@ -69,42 +69,42 @@
                     return;
                 }
 
-                querySnapshot.forEach((doc) => {
+               querySnapshot.forEach((doc) => {
                     const post = doc.data();
                     const id = doc.id;
 
-                    // 1. TRATAMENTO DA IMAGEM (Capa)
-                    // Verifica se existe o campo 'imagem' (o link da capa que você coloca no admin)
-                    const urlImagem = post.imagem && post.imagem.trim() !== ""
-                        ? post.imagem
-                        : 'https://via.placeholder.com/400x250?text=Low+Waste';
+                    // Tenta pegar a imagem, se não conseguir, deixa vazio
+                    let urlImagem = post.imagem || "";
 
-                    // 2. TRATAMENTO DO RESUMO (Texto)
-                    let resumoBruto = "";
-                    if (Array.isArray(post.conteudo)) {
-                        // Se for a nova estrutura, pega o primeiro bloco que for 'texto'
-                        const blocoTexto = post.conteudo.find(b => b.tipo === 'texto');
-                        resumoBruto = blocoTexto ? blocoTexto.valor : "";
-                    } else {
-                        // Se for post antigo (apenas string)
-                        resumoBruto = post.conteudo || "";
+                    // Se o link não começar com http, ele vai dar erro, então limpamos
+                    if (urlImagem && !urlImagem.startsWith('http')) {
+                        urlImagem = "";
                     }
 
-                    const resumoExibir = resumoBruto.substring(0, 100) + "...";
+                    let resumo = "";
+                    if (Array.isArray(post.conteudo)) {
+                        const blocoTexto = post.conteudo.find(b => b.tipo === 'texto');
+                        resumo = blocoTexto ? blocoTexto.valor : "";
+                    } else {
+                        resumo = post.conteudo || "";
+                    }
 
                     const cardHTML = `
-                        <div class="post-card">
-                            <div class="post-card-img">
-                                <img src="${urlImagem}" alt="${post.titulo}" onerror="this.src='https://via.placeholder.com/400x250?text=Erro+na+Imagem'">
-                            </div>
-                            <div class="post-card-content">
-                                <span class="category">${post.categoria || 'Sustentabilidade'}</span>
-                                <h3>${post.titulo}</h3>
-                                <p>${resumoExibir}</p> 
-                                <a href="ver-post.html?id=${id}" class="btn-read">Ler Completo</a>
-                            </div>
-                        </div>
-                    `;
+        <div class="post-card">
+            <div class="post-card-img" style="background-color: #e1e6e1; height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                ${urlImagem
+                            ? `<img src="${urlImagem}" alt="${post.titulo}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\'color:#8da08b\'>🌱 Low Waste</span>'">`
+                            : `<span style="color:#8da08b">🌱 Low Waste</span>`
+                        }
+            </div>
+            <div class="post-card-content">
+                <span class="category">${post.categoria || 'Geral'}</span>
+                <h3>${post.titulo}</h3>
+                <p>${resumo.substring(0, 100)}...</p> 
+                <a href="ver-post.html?id=${id}" class="btn-read">Ler Completo</a>
+            </div>
+        </div>
+    `;
 
                     areaPosts.innerHTML += cardHTML;
                 });
