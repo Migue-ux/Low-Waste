@@ -25,7 +25,7 @@
         </article>
     </main>
 
-    <footer style="text-align: center; padding: 20px;">
+    <footer class="footer">
         <p>&copy; 2025 Blog Low Waste</p>
     </footer>
 
@@ -60,34 +60,41 @@
             const docRef = doc(db, "posts", idPost);
             const docSnap = await getDoc(docRef);
 
+            // Dentro da função lerPostUnico() do seu ver-post.html
             if (docSnap.exists()) {
                 const post = docSnap.data();
 
-                // Formata a data (opcional)
-                let dataFormatada = "Data desconhecida";
-                if (post.data) {
-                    const dataObj = post.data.toDate();
-                    dataFormatada = dataObj.toLocaleDateString('pt-BR');
+                // Gerar o conteúdo baseado nos blocos
+                let blocosHTML = '';
+
+                // Verifica se o conteúdo é a nova estrutura (array) ou o modelo antigo (string)
+                if (Array.isArray(post.conteudo)) {
+                    post.conteudo.forEach(bloco => {
+                        if (bloco.tipo === 'texto') {
+                            blocosHTML += `<p>${bloco.valor.replace(/\n/g, '<br>')}</p>`;
+                        } else if (bloco.tipo === 'subtitulo') {
+                            blocosHTML += `<h3>${bloco.valor}</h3>`;
+                        } else if (bloco.tipo === 'imagem') {
+                            blocosHTML += `<div class="post-img-placeholder"><img src="${bloco.valor}"></div>`;
+                        }
+                    });
+                } else {
+                    // Fallback para posts antigos que eram apenas texto
+                    blocosHTML = `<p>${post.conteudo.replace(/\n/g, '<br>')}</p>`;
                 }
 
-                // 3. Preenche o HTML
-                const htmlConteudo = `
-                    <span class="category">${post.categoria}</span>
-                    <h1>${post.titulo}</h1>
-                    <p class="meta">Publicado em ${dataFormatada}</p>
-                    
-                    <div class="post-img-placeholder">
-                        <img src="${post.imagem || 'https://via.placeholder.com/800'}" alt="Imagem do Post">
-                    </div>
-
-                    <div class="texto-post">
-                        <p>${post.conteudo.replace(/\n/g, '<br>')}</p>
-                    </div>
-                `;
-
-                document.getElementById('area-conteudo').innerHTML = htmlConteudo;
+                const htmlCompleto = `
+        <span class="category">${post.categoria}</span>
+        <h1>${post.titulo}</h1>
+        <p class="meta">Publicado em ${post.data ? post.data.toDate().toLocaleDateString('pt-BR') : ''}</p>
+        <div class="post-img-placeholder"><img src="${post.imagem}"></div>
+        <div class="texto-post">
+            ${blocosHTML}
+        </div>
+    `;
+                document.getElementById('area-conteudo').innerHTML = htmlCompleto;
             } else {
-                document.getElementById('area-conteudo').innerHTML = "<h1>Post não encontrado :(</h1>";
+                document.getElementById('area-conteudo').innerHTML = '<p>Post não encontrado.</p>';
             }
         }
 
