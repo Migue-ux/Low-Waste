@@ -35,7 +35,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyB3IehrenMKz8uJSgea3EaiIhlIDEAtrQw",
             authDomain: "blog-low-wast.firebaseapp.com",
@@ -49,16 +48,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Acesso Oculto: 2 cliques na palavra "mais" levam ao admin
+        // Atalho para Admin (2 cliques)
         let Cliques = 0;
         document.getElementById('admin-trigger').addEventListener('click', () => {
             Cliques++;
-            if (Cliques === 2) {
-                window.location.href = 'admin.html';
-            }
+            if (Cliques === 2) window.location.href = 'admin.html';
         });
 
-        // Função para carregar posts
         async function carregarPosts() {
             const areaPosts = document.getElementById('lista-posts');
 
@@ -77,27 +73,34 @@
                     const post = doc.data();
                     const id = doc.id;
 
-                    // --- LÓGICA DO RESUMO PARA MULTIPLOS TEXTOS ---
-                    let resumo = "";
+                    // 1. TRATAMENTO DA IMAGEM (Capa)
+                    // Verifica se existe o campo 'imagem' (o link da capa que você coloca no admin)
+                    const urlImagem = post.imagem && post.imagem.trim() !== ""
+                        ? post.imagem
+                        : 'https://via.placeholder.com/400x250?text=Low+Waste';
+
+                    // 2. TRATAMENTO DO RESUMO (Texto)
+                    let resumoBruto = "";
                     if (Array.isArray(post.conteudo)) {
-                        // Busca o primeiro bloco que seja do tipo 'texto'
-                        const primeiroBlocoTexto = post.conteudo.find(bloco => bloco.tipo === 'texto');
-                        resumo = primeiroBlocoTexto ? primeiroBlocoTexto.valor : "";
+                        // Se for a nova estrutura, pega o primeiro bloco que for 'texto'
+                        const blocoTexto = post.conteudo.find(b => b.tipo === 'texto');
+                        resumoBruto = blocoTexto ? blocoTexto.valor : "";
                     } else {
-                        // Caso o post ainda seja do modelo antigo (string)
-                        resumo = post.conteudo || "";
+                        // Se for post antigo (apenas string)
+                        resumoBruto = post.conteudo || "";
                     }
 
-                    // Corta o texto para 100 caracteres
-                    const resumoCortado = resumo.substring(0, 100) + "...";
+                    const resumoExibir = resumoBruto.substring(0, 100) + "...";
 
                     const cardHTML = `
                         <div class="post-card">
-                            <img src="${post.imagem || 'https://via.placeholder.com/400'}" alt="${post.titulo}">
+                            <div class="post-card-img">
+                                <img src="${urlImagem}" alt="${post.titulo}" onerror="this.src='https://via.placeholder.com/400x250?text=Erro+na+Imagem'">
+                            </div>
                             <div class="post-card-content">
-                                <span class="category">${post.categoria || 'Geral'}</span>
+                                <span class="category">${post.categoria || 'Sustentabilidade'}</span>
                                 <h3>${post.titulo}</h3>
-                                <p>${resumoCortado}</p> 
+                                <p>${resumoExibir}</p> 
                                 <a href="ver-post.html?id=${id}" class="btn-read">Ler Completo</a>
                             </div>
                         </div>
@@ -107,8 +110,8 @@
                 });
 
             } catch (error) {
-                console.error("Erro ao carregar:", error);
-                areaPosts.innerHTML = "<p>Erro ao carregar posts. Verifique o console.</p>";
+                console.error("Erro:", error);
+                areaPosts.innerHTML = "<p>Erro ao carregar o feed.</p>";
             }
         }
 
